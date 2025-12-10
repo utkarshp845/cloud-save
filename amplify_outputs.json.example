@@ -1,0 +1,10 @@
+{
+  "version": "1",
+  "auth": {
+    "user_pool_id": "us-east-1_XXXXXXXXX",
+    "user_pool_client_id": "XXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "identity_pool_id": "us-east-1:XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    "aws_region": "us-east-1"
+  }
+}
+
