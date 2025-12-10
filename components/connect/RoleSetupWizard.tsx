@@ -6,17 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PolicyTemplate } from "@/components/connect/PolicyTemplate";
 import { ARNInputForm } from "@/components/connect/ARNInputForm";
+import { CloudFormationDeploy } from "@/components/connect/CloudFormationDeploy";
 import { getTrustPolicy } from "@/lib/aws/policies";
 import { useAWSStore } from "@/lib/store/aws-store";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const steps = [
   {
-    title: "IAM Policy Template",
-    description: "Copy the permissions policy for your IAM role",
-  },
-  {
-    title: "Trust Policy",
-    description: "Configure the trust policy for your role",
+    title: "Deploy Role",
+    description: "Deploy IAM role with CloudFormation (recommended) or manual setup",
   },
   {
     title: "Connect Account",
@@ -81,53 +79,64 @@ export function RoleSetupWizard() {
 
           {/* Step content */}
           <div className="min-h-[400px]">
-            {currentStep === 0 && <PolicyTemplate />}
-            {currentStep === 1 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>IAM Trust Policy</CardTitle>
-                  <CardDescription>
-                    Use this trust policy when creating your IAM role
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">AWS Account ID</label>
-                    <input
-                      type="text"
-                      placeholder="123456789012"
-                      className="w-full px-3 py-2 border rounded-md"
-                      value={accountId || ""}
-                      readOnly
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">External ID</label>
-                    <input
-                      type="text"
-                      placeholder="your-external-id"
-                      className="w-full px-3 py-2 border rounded-md"
-                      value={externalId || ""}
-                      readOnly
-                    />
-                  </div>
-                  {accountId && externalId && (
-                    <div className="relative">
-                      <pre className="overflow-x-auto rounded-md bg-muted p-4 text-sm">
-                        <code>
-                          {getTrustPolicy(accountId, externalId)}
-                        </code>
-                      </pre>
-                    </div>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    Note: You'll need to generate an external ID first in the next step.
-                    The trust policy will be shown after you enter your account details.
-                  </p>
-                </CardContent>
-              </Card>
+            {currentStep === 0 && (
+              <Tabs defaultValue="cloudformation" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="cloudformation">CloudFormation (Recommended)</TabsTrigger>
+                  <TabsTrigger value="manual">Manual Setup</TabsTrigger>
+                </TabsList>
+                <TabsContent value="cloudformation" className="mt-4">
+                  <CloudFormationDeploy />
+                </TabsContent>
+                <TabsContent value="manual" className="mt-4 space-y-4">
+                  <PolicyTemplate />
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>IAM Trust Policy</CardTitle>
+                      <CardDescription>
+                        Use this trust policy when creating your IAM role manually
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">AWS Account ID</label>
+                        <input
+                          type="text"
+                          placeholder="123456789012"
+                          className="w-full px-3 py-2 border rounded-md"
+                          value={accountId || ""}
+                          readOnly
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">External ID</label>
+                        <input
+                          type="text"
+                          placeholder="your-external-id"
+                          className="w-full px-3 py-2 border rounded-md"
+                          value={externalId || ""}
+                          readOnly
+                        />
+                      </div>
+                      {accountId && externalId && (
+                        <div className="relative">
+                          <pre className="overflow-x-auto rounded-md bg-muted p-4 text-sm">
+                            <code>
+                              {getTrustPolicy(accountId, externalId)}
+                            </code>
+                          </pre>
+                        </div>
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        Note: You'll need to generate an external ID first in the next step.
+                        The trust policy will be shown after you enter your account details.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             )}
-            {currentStep === 2 && <ARNInputForm />}
+            {currentStep === 1 && <ARNInputForm />}
           </div>
 
           {/* Navigation buttons */}

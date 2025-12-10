@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SpotSave IAM Role for AWS Cost Optimization - Read-only access to Cost Explorer'
+
+Parameters:
+  ExternalId:
+    Type: String
+    Description: External ID for secure role assumption (generate a unique value)
+    MinLength: 2
+    MaxLength: 1224
+    AllowedPattern: '^[a-zA-Z0-9]+$'
+    Default: 'spotsave-external-id'
+
+Resources:
+  SpotSaveRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SpotSaveRole
+      Description: 'Read-only role for SpotSave AWS cost optimization tool'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                'sts:ExternalId': !Ref ExternalId
+      ManagedPolicyArns: []
+      Policies:
+        - PolicyName: SpotSaveCostExplorerReadOnly
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ce:GetCostAndUsage'
+                  - 'ce:GetCostAndUsageWithResources'
+                  - 'ce:GetReservationCoverage'
+                  - 'ce:GetReservationPurchaseRecommendation'
+                  - 'ce:GetReservationUtilization'
+                  - 'ce:GetRightsizingRecommendation'
+                  - 'ce:GetSavingsPlansCoverage'
+                  - 'ce:GetSavingsPlansUtilization'
+                  - 'ce:GetSavingsPlansUtilizationDetails'
+                  - 'ce:GetUsageReport'
+                  - 'ce:ListCostCategoryDefinitions'
+                  - 'ce:GetCostForecast'
+                  - 'ce:GetUsageForecast'
+                  - 'ce:GetDimensionValues'
+                  - 'ce:GetTags'
+                  - 'ce:DescribeCostCategoryDefinition'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'budgets:ViewBudget'
+                  - 'budgets:DescribeBudgets'
+                  - 'budgets:DescribeBudgetPerformanceHistory'
+                  - 'budgets:DescribeBudgetActionsForAccount'
+                  - 'budgets:DescribeBudgetActionsForBudget'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'trustedadvisor:Describe*'
+                  - 'trustedadvisor:RefreshCheck'
+                  - 'trustedadvisor:ExcludeCheck'
+                  - 'trustedadvisor:IncludeCheck'
+                Resource: '*'
+      Tags:
+        - Key: Purpose
+          Value: SpotSave
+        - Key: ManagedBy
+          Value: CloudFormation
+
+Outputs:
+  RoleArn:
+    Description: 'ARN of the SpotSave IAM Role'
+    Value: !GetAtt SpotSaveRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleArn'
+  
+  ExternalId:
+    Description: 'External ID used in the trust policy'
+    Value: !Ref ExternalId
+    Export:
+      Name: !Sub '${AWS::StackName}-ExternalId'
+  
+  RoleName:
+    Description: 'Name of the IAM Role'
+    Value: !Ref SpotSaveRole
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleName'
+
