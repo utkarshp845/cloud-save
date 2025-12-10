@@ -40,13 +40,21 @@ export default function SignUpPage() {
 
     try {
       const result = await handleSignUp({ email, password });
-      setSuccess(true);
-      // Wait for auto-sign-in to complete, then redirect
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 1500);
+      
+      if (result.isSignUpComplete) {
+        setSuccess(true);
+        // Wait for auto-sign-in to complete, then redirect
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1500);
+      } else {
+        // Handle confirmation step if needed
+        setError("Please check your email to confirm your account.");
+        setIsLoading(false);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sign up. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to sign up. Please try again.";
+      setError(errorMessage);
       setIsLoading(false);
     }
   };
