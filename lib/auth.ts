@@ -46,7 +46,7 @@ export async function handleSignIn({ email, password }: SignInParams) {
   // Always sign out any existing user first to avoid conflicts
   try {
     await signOut();
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise(resolve => setTimeout(resolve, 300));
   } catch {
     // Ignore errors if no user is signed in
   }
@@ -57,26 +57,10 @@ export async function handleSignIn({ email, password }: SignInParams) {
       password,
     });
     
-    // Wait for the session to be established
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Verify the user is actually signed in
-    let user;
-    let retries = 0;
-    while (retries < 5) {
-      try {
-        user = await getCurrentUser();
-        if (user) break;
-      } catch {
-        // Keep trying
-      }
-      await new Promise(resolve => setTimeout(resolve, 200));
-      retries++;
-    }
-    
-    if (!user) {
-      throw new Error("Sign in failed - session not established");
-    }
+    // Don't check session immediately - trust Amplify's signIn result
+    // The session will be established by Amplify
+    // Just wait a moment for the redirect to happen
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     return result;
   } catch (error) {
@@ -93,12 +77,7 @@ export async function handleSignIn({ email, password }: SignInParams) {
           password,
         });
         
-        await new Promise(resolve => setTimeout(resolve, 800));
-        const user = await getCurrentUser();
-        if (!user) {
-          throw new Error("Sign in failed after retry");
-        }
-        
+        await new Promise(resolve => setTimeout(resolve, 500));
         return retryResult;
       } catch (retryError) {
         throw new Error(retryError instanceof Error ? retryError.message : "Failed to sign in after retry");

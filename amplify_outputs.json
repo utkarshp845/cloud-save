@@ -4,6 +4,13 @@
     "user_pool_id": "us-east-1_HkeTTPYM4",
     "user_pool_client_id": "17rb4jdt7gg6n0u5oedigig0mv",
     "identity_pool_id": "us-east-1:77db0825-96c1-40aa-8f61-ffc26023bca9",
-    "aws_region": "us-east-1"
+    "aws_region": "us-east-1",
+    "password_policy": {
+      "min_length": 8,
+      "require_lowercase": true,
+      "require_numbers": true,
+      "require_symbols": false,
+      "require_uppercase": true
+    }
   }
 }
