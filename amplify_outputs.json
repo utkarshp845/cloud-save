@@ -1,9 +1,9 @@
 {
   "version": "1",
   "auth": {
-    "user_pool_id": "us-east-1_TEMP",
-    "user_pool_client_id": "TEMP_CLIENT_ID",
-    "identity_pool_id": "us-east-1:TEMP_IDENTITY",
+    "user_pool_id": "us-east-1_HkeTTPYM4",
+    "user_pool_client_id": "3vguc1cf4j97lnth4cdvlbcd1g",
+    "identity_pool_id": "us-east-1:77db0825-96c1-40aa-8f61-ffc26023bca9",
     "aws_region": "us-east-1"
   }
 }
