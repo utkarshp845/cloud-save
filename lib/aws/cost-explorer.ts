@@ -54,7 +54,7 @@ export async function getCostAndUsage(
 
   try {
     const command = new GetCostAndUsageCommand(params);
-    const response = await command;
+    const response = await client.send(command);
 
     const monthlyCosts: MonthlyCost[] = [];
     const serviceMap = new Map<string, number>();
@@ -144,7 +144,7 @@ export async function getCostForecast(
 
   try {
     const command = new GetCostForecastCommand(params);
-    const response = await command;
+    const response = await client.send(command);
 
     const forecast: Array<{ timePeriod: string; meanValue: string }> = [];
     if (response.ForecastResultsByTime) {
@@ -187,15 +187,17 @@ export async function getRightsizingRecommendations(
 
   try {
     const command = new GetRightsizingRecommendationCommand(params);
-    const response = await command;
+    const response = await client.send(command);
 
     const recommendations: Recommendation[] = [];
 
     if (response.RightsizingRecommendations) {
       for (const rec of response.RightsizingRecommendations) {
-        const currentCost = parseFloat(rec.CurrentInstance?.MonthlyCost || "0");
-        const targetCost = rec.TargetInstances?.[0]
-          ? parseFloat(rec.TargetInstances[0].MonthlyCost || "0")
+        const currentInstance = rec.CurrentInstance as {MonthlyCost?: string; InstanceName?: string; InstanceType?: string} | undefined;
+        const currentCost = parseFloat(currentInstance?.MonthlyCost || "0");
+        const targetInstances = (rec as {TargetInstances?: Array<{MonthlyCost?: string; InstanceType?: string}>}).TargetInstances;
+        const targetCost = targetInstances?.[0]
+          ? parseFloat(targetInstances[0].MonthlyCost || "0")
           : currentCost;
         const savings = currentCost - targetCost;
 
@@ -203,11 +205,11 @@ export async function getRightsizingRecommendations(
           recommendations.push({
             id: rec.AccountId || `rec-${Date.now()}`,
             type: "rightsizing",
-            title: `Rightsize ${rec.CurrentInstance?.InstanceName || "Instance"}`,
-            description: `Consider downsizing from ${rec.CurrentInstance?.InstanceType} to ${rec.TargetInstances?.[0]?.InstanceType || "smaller instance"}`,
+            title: `Rightsize ${currentInstance?.InstanceName || "Instance"}`,
+            description: `Consider downsizing from ${currentInstance?.InstanceType || "current instance"} to ${targetInstances?.[0]?.InstanceType || "smaller instance"}`,
             potentialSavings: savings,
             service: "EC2",
-            resourceId: rec.CurrentInstance?.InstanceName,
+            resourceId: currentInstance?.InstanceName,
             priority: savings > 100 ? "high" : savings > 50 ? "medium" : "low",
           });
         }

@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
+import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,9 +13,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { handleSignIn } from "@/lib/auth";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [redirectPath] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("redirect") || "/dashboard";
+    }
+    return "/dashboard";
+  });
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
@@ -27,8 +34,7 @@ export default function LoginPage() {
 
     try {
       await handleSignIn({ email, password });
-      const redirect = searchParams.get("redirect") || "/dashboard";
-      router.push(redirect);
+      router.push(redirectPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to sign in. Please check your credentials.");
     } finally {
@@ -89,6 +95,18 @@ export default function LoginPage() {
         </form>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
 
