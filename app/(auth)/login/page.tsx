@@ -34,10 +34,10 @@ function LoginForm() {
 
     try {
       await handleSignIn({ email, password });
-      router.push(redirectPath);
+      // Use window.location for a hard redirect to ensure auth state is refreshed
+      window.location.href = redirectPath;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to sign in. Please check your credentials.");
-    } finally {
       setIsLoading(false);
     }
   };

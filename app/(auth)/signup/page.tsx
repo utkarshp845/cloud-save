@@ -39,15 +39,14 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      await handleSignUp({ email, password });
+      const result = await handleSignUp({ email, password });
       setSuccess(true);
-      // Redirect to dashboard after successful signup
+      // Wait for auto-sign-in to complete, then redirect
       setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
+        window.location.href = "/dashboard";
+      }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to sign up. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   };

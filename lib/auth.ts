@@ -30,11 +30,21 @@ export async function handleSignUp({ email, password }: SignUpParams) {
 
 export async function handleSignIn({ email, password }: SignInParams) {
   try {
-    const { isSignedIn, nextStep } = await signIn({
+    const result = await signIn({
       username: email,
       password,
     });
-    return { isSignedIn, nextStep };
+    
+    // Wait a bit for the session to be established
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Verify the user is actually signed in
+    const user = await getCurrentUser();
+    if (!user) {
+      throw new Error("Sign in failed - session not established");
+    }
+    
+    return result;
   } catch (error) {
     throw error;
   }
