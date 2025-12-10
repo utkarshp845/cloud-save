@@ -208,46 +208,22 @@ localStorage.setItem('MOCK_AWS', 'true')
 
 ## Deployment
 
+This application is deployed on AWS Amplify. The `amplify.yml` file contains the build configuration.
+
 ### Deploy Backend (Amplify Auth)
 
-1. Push backend changes:
-```bash
-npm run amplify-push
-```
+The Cognito user pool is already configured. The `amplify_outputs.json` file contains the authentication configuration.
 
-This deploys the Cognito user pool and related resources.
+### Deploy Frontend
 
-### Deploy Frontend (Amplify Hosting)
+The application is automatically deployed when changes are pushed to the main branch. The build process:
+1. Installs dependencies (`npm ci`)
+2. Builds the Next.js application (`npm run build`)
+3. Deploys to Amplify Hosting
 
-1. **Connect to Amplify Hosting**:
-   - Go to AWS Amplify Console
-   - Click "New app" → "Host web app"
-   - Connect your Git repository
-   - Select the branch to deploy
+### Environment Variables
 
-2. **Configure Build Settings**:
-   - The `amplify.yml` file is already configured
-   - Build command: `npm run build`
-   - Output directory: `.next`
-
-3. **Environment Variables** (if needed):
-   - Add any required environment variables in Amplify Console
-   - `MOCK_AWS` can be set to `false` for production
-
-4. **Deploy**:
-   - Amplify will automatically build and deploy on push to the connected branch
-   - Or manually trigger a deployment from the console
-
-### Post-Deployment
-
-1. **Update IAM Trust Policy**:
-   - If your app is hosted on a different AWS account, update the trust policy's Principal ARN
-   - The Principal should allow the Amplify hosting account to assume the role
-
-2. **Test Production**:
-   - Sign up for a new account
-   - Connect your AWS account
-   - Verify all features work correctly
+- `MOCK_AWS`: Set to `false` in production to use real AWS APIs
 
 ## Project Structure
 
