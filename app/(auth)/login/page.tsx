@@ -33,17 +33,11 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      const result = await handleSignIn({ email, password });
+      await handleSignIn({ email, password });
       
-      // Check if sign-in completed successfully
-      if (result.isSignedIn) {
-        // Use window.location for a hard redirect to ensure auth state is refreshed
-        window.location.href = redirectPath;
-      } else {
-        // Handle multi-step sign-in if needed
-        setError("Sign in requires additional steps. Please try again.");
-        setIsLoading(false);
-      }
+      // Always redirect after successful sign-in
+      // Use window.location for a hard redirect to ensure auth state is refreshed
+      window.location.href = redirectPath;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to sign in. Please check your credentials.";
       setError(errorMessage);

@@ -11,15 +11,15 @@ export interface SignInParams {
 }
 
 export async function handleSignUp({ email, password }: SignUpParams) {
+  // Always sign out any existing user first
   try {
-    // Check if user is already signed in and sign them out first
-    try {
-      await getCurrentUser();
-      await signOut();
-    } catch {
-      // No user signed in, continue
-    }
+    await signOut();
+    await new Promise(resolve => setTimeout(resolve, 200));
+  } catch {
+    // Ignore errors if no user is signed in
+  }
 
+  try {
     const { isSignUpComplete, userId, nextStep } = await signUp({
       username: email,
       password,
@@ -30,6 +30,12 @@ export async function handleSignUp({ email, password }: SignUpParams) {
         autoSignIn: true,
       },
     });
+    
+    // Wait for auto-sign-in to complete
+    if (isSignUpComplete) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
     return { isSignUpComplete, userId, nextStep };
   } catch (error) {
     throw error;
@@ -37,44 +43,65 @@ export async function handleSignUp({ email, password }: SignUpParams) {
 }
 
 export async function handleSignIn({ email, password }: SignInParams) {
+  // Always sign out any existing user first to avoid conflicts
   try {
-    // Check if user is already signed in and sign them out first
-    try {
-      const currentUser = await getCurrentUser();
-      // If different user, sign out first
-      if (currentUser.signInDetails?.loginId !== email) {
-        await signOut();
-        // Wait a bit for sign out to complete
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-    } catch {
-      // No user signed in, continue
-    }
+    await signOut();
+    await new Promise(resolve => setTimeout(resolve, 200));
+  } catch {
+    // Ignore errors if no user is signed in
+  }
 
+  try {
     const result = await signIn({
       username: email,
       password,
     });
     
     // Wait for the session to be established
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     // Verify the user is actually signed in
-    const user = await getCurrentUser();
+    let user;
+    let retries = 0;
+    while (retries < 5) {
+      try {
+        user = await getCurrentUser();
+        if (user) break;
+      } catch {
+        // Keep trying
+      }
+      await new Promise(resolve => setTimeout(resolve, 200));
+      retries++;
+    }
+    
     if (!user) {
       throw new Error("Sign in failed - session not established");
     }
     
     return result;
   } catch (error) {
-    // If error is about already signed in, try to sign out and retry
-    if (error instanceof Error && error.message.includes("already a signed in user")) {
+    // If error mentions already signed in, sign out and retry once
+    const errorMessage = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+    if (errorMessage.includes("already") || errorMessage.includes("signed in")) {
       try {
         await signOut();
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return await handleSignIn({ email, password });
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Retry sign in
+        const retryResult = await signIn({
+          username: email,
+          password,
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 800));
+        const user = await getCurrentUser();
+        if (!user) {
+          throw new Error("Sign in failed after retry");
+        }
+        
+        return retryResult;
       } catch (retryError) {
-        throw retryError;
+        throw new Error(retryError instanceof Error ? retryError.message : "Failed to sign in after retry");
       }
     }
     throw error;

@@ -11,25 +11,29 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const [isChecking, setIsChecking] = React.useState(true);
+  const [isAuthorized, setIsAuthorized] = React.useState(false);
 
   React.useEffect(() => {
     const checkAuth = async () => {
       try {
         const user = await getCurrentAuthUser();
-        if (!user) {
-          router.push("/login");
-        } else {
+        if (user) {
+          setIsAuthorized(true);
           setIsChecking(false);
+        } else {
+          // Use window.location for hard redirect
+          window.location.href = "/login";
         }
       } catch (error) {
-        router.push("/login");
+        // Use window.location for hard redirect
+        window.location.href = "/login";
       }
     };
 
     checkAuth();
-  }, [router]);
+  }, []);
 
-  if (isChecking) {
+  if (isChecking || !isAuthorized) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
