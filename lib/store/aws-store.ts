@@ -24,6 +24,7 @@ interface AWSStore {
   // Actions
   setCredentials: (credentials: AWSCredentials) => void;
   setRoleInfo: (roleArn: string, accountId: string, externalId: string) => void;
+  setExternalId: (externalId: string) => void;
   setCostData: (data: CostExplorerResponse) => void;
   setForecastData: (data: ForecastResponse) => void;
   setRecommendationsData: (data: RecommendationsResponse) => void;
@@ -58,6 +59,10 @@ export const useAWSStore = create<AWSStore>()(
 
       setRoleInfo: (roleArn, accountId, externalId) => {
         set({ roleArn, accountId, externalId });
+      },
+
+      setExternalId: (externalId) => {
+        set({ externalId });
       },
 
       setCostData: (data) => {
