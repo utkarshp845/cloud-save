@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Remove standalone output for Amplify compatibility
-  // Amplify handles Next.js SSR automatically
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
@@ -11,7 +9,6 @@ const nextConfig = {
   env: {
     MOCK_AWS: process.env.MOCK_AWS || 'false',
   },
-  // Ensure proper handling of API routes in Amplify
   async headers() {
     return [
       {
