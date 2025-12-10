@@ -36,22 +36,18 @@ function LoginForm() {
       const result = await handleSignIn({ email, password });
       
       // Check if we need to complete sign-in (multi-step auth)
-      if (result.nextStep?.signInStep === "CONFIRM_SIGN_IN" || result.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
-        setError("Please check your email for a verification code.");
-        setIsLoading(false);
-        return;
+      if (result.nextStep && !result.isSignedIn) {
+        const step = result.nextStep.signInStep;
+        if (step && step.includes("CONFIRM")) {
+          setError("Please check your email for a verification code.");
+          setIsLoading(false);
+          return;
+        }
       }
       
-      // If sign-in is complete, redirect
-      if (result.isSignedIn) {
-        // Use window.location for a hard redirect to ensure auth state is refreshed
-        window.location.href = redirectPath;
-      } else {
-        // Wait a bit more and try redirect anyway
-        setTimeout(() => {
-          window.location.href = redirectPath;
-        }, 1000);
-      }
+      // Always redirect after sign-in attempt
+      // Use window.location for a hard redirect to ensure auth state is refreshed
+      window.location.href = redirectPath;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to sign in. Please check your credentials.";
       setError(errorMessage);
