@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone', // Optimized for Amplify hosting
+  // Remove standalone output for Amplify compatibility
+  // Amplify handles Next.js SSR automatically
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
