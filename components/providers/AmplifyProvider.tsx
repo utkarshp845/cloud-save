@@ -16,15 +16,26 @@ if (typeof window !== "undefined") {
     fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AmplifyProvider.tsx:13',message:'Configuring Amplify',data:{userPoolId:outputs.auth.user_pool_id,clientId:outputs.auth.user_pool_client_id,region:outputs.auth.aws_region},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
     // #endregion
     try {
+      // Verify we're not using the old user pool ID
+      if (outputs.auth.user_pool_id === 'us-east-1_HkeTTPYM4') {
+        console.error('[DEBUG] ERROR: Still using old user pool ID! Expected: us-east-1_ubZrqY1VF');
+      }
       Amplify.configure(outputs, { ssr: true });
       // #region agent log
       console.log('[DEBUG] Amplify.configure succeeded');
-      fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AmplifyProvider.tsx:18',message:'Amplify.configure succeeded',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+      // Verify configuration was applied
+      const config = Amplify.getConfig();
+      console.log('[DEBUG] Amplify config after configure:', { 
+        auth: config.Auth?.Cognito,
+        userPoolId: config.Auth?.Cognito?.userPoolId,
+        userPoolClientId: config.Auth?.Cognito?.userPoolClientId
+      });
+      fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AmplifyProvider.tsx:18',message:'Amplify.configure succeeded',data:{config:config.Auth?.Cognito},timestamp:Date.now(),sessionId:'debug-session',runId:'verification',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
     } catch (error) {
       // #region agent log
       console.error('[DEBUG] Amplify.configure failed:', error);
-      fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AmplifyProvider.tsx:21',message:'Amplify.configure failed',data:{error:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AmplifyProvider.tsx:21',message:'Amplify.configure failed',data:{error:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'verification',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
     }
   } else {
