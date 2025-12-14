@@ -104,6 +104,10 @@ export async function handleSignIn({ email, password }: SignInParams) {
       fullError: error
     };
     console.error('[DEBUG] signIn failed:', errorDetails);
+    // Check for USER_SRP_AUTH error specifically
+    if (errorDetails.message && errorDetails.message.includes('USER_SRP_AUTH')) {
+      console.error('[DEBUG] USER_SRP_AUTH not enabled! This requires updating the Cognito User Pool Client.');
+    }
     fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:77',message:'signIn failed',data:errorDetails,timestamp:Date.now(),sessionId:'debug-session',runId:'verification',hypothesisId:'D'})}).catch(()=>{});
     // #endregion
     // If error mentions already signed in, sign out and retry once
