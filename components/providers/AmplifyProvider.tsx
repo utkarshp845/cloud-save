@@ -20,9 +20,16 @@ if (typeof window !== "undefined") {
       if (outputs.auth.user_pool_id === 'us-east-1_HkeTTPYM4') {
         console.error('[DEBUG] ERROR: Still using old user pool ID! Expected: us-east-1_ubZrqY1VF');
       }
+      // Clear any cached Amplify configuration first
+      try {
+        Amplify.configure({}, { clear: true });
+      } catch {
+        // Ignore if clear fails
+      }
+      // Configure with fresh values
       Amplify.configure(outputs, { ssr: true });
       // #region agent log
-      console.log('[DEBUG] Amplify.configure succeeded');
+      console.log('[DEBUG] Amplify.configure succeeded with user pool:', outputs.auth.user_pool_id);
       // Verify configuration was applied
       const config = Amplify.getConfig();
       console.log('[DEBUG] Amplify config after configure:', { 
