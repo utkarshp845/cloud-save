@@ -11,6 +11,9 @@ export interface SignInParams {
 }
 
 export async function handleSignUp({ email, password }: SignUpParams) {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:13',message:'handleSignUp called',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
   // Always sign out any existing user first
   try {
     await signOut();
@@ -20,6 +23,9 @@ export async function handleSignUp({ email, password }: SignUpParams) {
   }
 
   try {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:25',message:'Calling signUp',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     const { isSignUpComplete, userId, nextStep } = await signUp({
       username: email,
       password,
@@ -31,6 +37,10 @@ export async function handleSignUp({ email, password }: SignUpParams) {
       },
     });
     
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:38',message:'signUp succeeded',data:{isSignUpComplete,userId},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    
     // Wait for auto-sign-in to complete
     if (isSignUpComplete) {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -38,11 +48,17 @@ export async function handleSignUp({ email, password }: SignUpParams) {
     
     return { isSignUpComplete, userId, nextStep };
   } catch (error) {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:47',message:'signUp failed',data:{error:error instanceof Error ? error.message : String(error),errorStack:error instanceof Error ? error.stack : undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     throw error;
   }
 }
 
 export async function handleSignIn({ email, password }: SignInParams) {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:50',message:'handleSignIn called',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
   // Always sign out any existing user first to avoid conflicts
   try {
     await signOut();
@@ -52,10 +68,17 @@ export async function handleSignIn({ email, password }: SignInParams) {
   }
 
   try {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:60',message:'Calling signIn',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     const result = await signIn({
       username: email,
       password,
     });
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:68',message:'signIn succeeded',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     
     // Don't check session immediately - trust Amplify's signIn result
     // The session will be established by Amplify
@@ -64,6 +87,9 @@ export async function handleSignIn({ email, password }: SignInParams) {
     
     return result;
   } catch (error) {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:77',message:'signIn failed',data:{error:error instanceof Error ? error.message : String(error),errorStack:error instanceof Error ? error.stack : undefined,errorName:error instanceof Error ? error.name : undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     // If error mentions already signed in, sign out and retry once
     const errorMessage = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
     if (errorMessage.includes("already") || errorMessage.includes("signed in")) {
