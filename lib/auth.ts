@@ -12,7 +12,8 @@ export interface SignInParams {
 
 export async function handleSignUp({ email, password }: SignUpParams) {
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:13',message:'handleSignUp called',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+  console.log('[DEBUG] handleSignUp called:', { email });
+  fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:13',message:'handleSignUp called',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'verification',hypothesisId:'C'})}).catch(()=>{});
   // #endregion
   // Always sign out any existing user first
   try {
@@ -49,7 +50,14 @@ export async function handleSignUp({ email, password }: SignUpParams) {
     return { isSignUpComplete, userId, nextStep };
   } catch (error) {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:47',message:'signUp failed',data:{error:error instanceof Error ? error.message : String(error),errorStack:error instanceof Error ? error.stack : undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    const errorDetails = {
+      message: error instanceof Error ? error.message : String(error),
+      name: error instanceof Error ? error.name : undefined,
+      stack: error instanceof Error ? error.stack : undefined,
+      fullError: error
+    };
+    console.error('[DEBUG] signUp failed:', errorDetails);
+    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:47',message:'signUp failed',data:errorDetails,timestamp:Date.now(),sessionId:'debug-session',runId:'verification',hypothesisId:'C'})}).catch(()=>{});
     // #endregion
     throw error;
   }
@@ -57,7 +65,8 @@ export async function handleSignUp({ email, password }: SignUpParams) {
 
 export async function handleSignIn({ email, password }: SignInParams) {
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:50',message:'handleSignIn called',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+  console.log('[DEBUG] handleSignIn called:', { email });
+  fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:50',message:'handleSignIn called',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'verification',hypothesisId:'D'})}).catch(()=>{});
   // #endregion
   // Always sign out any existing user first to avoid conflicts
   try {
@@ -88,7 +97,14 @@ export async function handleSignIn({ email, password }: SignInParams) {
     return result;
   } catch (error) {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:77',message:'signIn failed',data:{error:error instanceof Error ? error.message : String(error),errorStack:error instanceof Error ? error.stack : undefined,errorName:error instanceof Error ? error.name : undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+    const errorDetails = {
+      message: error instanceof Error ? error.message : String(error),
+      name: error instanceof Error ? error.name : undefined,
+      stack: error instanceof Error ? error.stack : undefined,
+      fullError: error
+    };
+    console.error('[DEBUG] signIn failed:', errorDetails);
+    fetch('http://127.0.0.1:7243/ingest/aaab0382-1426-4d96-8048-69c314b805e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/auth.ts:77',message:'signIn failed',data:errorDetails,timestamp:Date.now(),sessionId:'debug-session',runId:'verification',hypothesisId:'D'})}).catch(()=>{});
     // #endregion
     // If error mentions already signed in, sign out and retry once
     const errorMessage = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
